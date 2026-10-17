@@ -40,11 +40,11 @@ async function consultarClima() {
     const weatherCard = document.getElementById('weather-card');
 
     if (!city) {
-        weatherCard.innerHTML = "<p class='error'>⚠️ Por favor, escribe un lugar válido.</p>";
+        weatherCard.innerHTML = "<p class='error'>Por favor, escribe un lugar válido.</p>";
         return;
     }
 
-    weatherCard.innerHTML = "<p class='loading'>🔄 Consultando base de datos geográfica y meteorológica remota...</p>";
+    weatherCard.innerHTML = "<p class='loading'>Consultando base de datos geográfica y meteorológica remota...</p>";
 
     try {
         // 1) Geocodificación con la API Nominatim de OpenStreetMap
@@ -67,7 +67,6 @@ async function consultarClima() {
         const { current } = await weatherResponse.json();
 
         const [condition, icon] = WEATHER_CODES[current.weather_code] ?? ['Condición desconocida', '🌡️'];
-        const hora = current.time.split('T')[1];
 
         // 3) Mapa embebido de OpenStreetMap centrado en la ubicación
         const d = 0.05;
@@ -75,7 +74,9 @@ async function consultarClima() {
 
         // Renderizado e inyección dinámica unificada en el DOM
         weatherCard.innerHTML = `
-            <h3>🗺️ Ubicación Localizada: 🧭 ${escapeHTML(city)}</h3>
+          <div class="result-layout">
+           <div class="result-info">
+            <h3>Ubicación Localizada: ${escapeHTML(city)}</h3>
             <p class="description"><strong>Descripción oficial:</strong> ${escapeHTML(lugar.display_name)}</p>
 
             <div class="geo-data">
@@ -85,7 +86,7 @@ async function consultarClima() {
             <hr class="divider">
 
             <div class="weather-data">
-                <h4>⛈️🌤️ Parámetros Climatológicos ⛈️🌤️</h4>
+                <h4>Parámetros Climatológicos</h4>
                 <p class="temp-main">${icon} ${Math.round(current.temperature_2m)}°C</p>
                 <p class="condition">${condition}</p>
                 <div class="weather-grid">
@@ -95,10 +96,10 @@ async function consultarClima() {
                     <div><span>Presión</span><strong>${Math.round(current.pressure_msl)} hPa</strong></div>
                 </div>
             </div>
+           </div>
 
             <iframe class="map-frame" title="Mapa de ${escapeHTML(city)}" src="${mapUrl}" loading="lazy"></iframe>
-
-            <div class="success-footer">✓ Datos de mapa meteorológico sincronizados con éxito · Hora local ${hora}</div>
+          </div>
         `;
     } catch (error) {
         console.error(error);
